@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-import Button from "../StartButton/Button";
-//import Button from '@material-ui/core/Button';
-//import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+
 
 
 const useStyles = makeStyles({
@@ -27,46 +26,80 @@ const useStyles = makeStyles({
 
 export default function SimpleCard() {
   const classes = useStyles();
-  //const bull = <span className={classes.bullet}>•</span>;
-  //Variables to set time, and turn timer on
-  let [time, setTime] = React.useState(0);
-  const [timerOn, setTimeOn] = React.useState(false);
 
-  React.useEffect(() => {
-      let interval = null;
+ //set the minutes and seconds
+ const [ minutes, setMinutes ] = useState(24);
+ const [seconds, setSeconds ] =  useState(59);
 
-      if (timerOn) {
-        interval = setInterval(() => {
-            setTime(prevTime => prevTime + 10)
-        }, 10)
-      } else {
-        clearInterval(interval)
-      }
+//set whether the timer is active 
+ const [isActive, setIsActive] = useState(false);
 
-      return () => clearInterval(interval)
+ //fucntion to start the timer
+ function startTimer() {
+  setIsActive(true);
+}
 
-  }, [timerOn])
-  
+function stopTimer() {
+  setIsActive(false);
+}
+
+
+  useEffect(()=>{
+  let myInterval = setInterval(() => {
+    //if is active = true start the timer
+    if (isActive) {
+          if (seconds > 0) {
+              setSeconds(seconds - 1);
+          }
+          if (seconds === 0) {
+              if (minutes === 0) {
+                  clearInterval(myInterval)
+              } else {
+                  setMinutes(minutes - 1);
+                  setSeconds(59);
+              }
+          } 
+        }
+      }, 1000)
+      return ()=> {
+          clearInterval(myInterval);
+        };
+  });
 
   return (
-    <Card className={classes.root}>
-      <CardContent>
-        <section>
-            <div className= "minutes">
-            <div className= "value">{time}</div>
-            <span>Minutes</span>
-            </div>
-            <div className= "seconds">
-            <div className= "value">00</div>
-            <span>Seconds</span>
-            </div>
-            <Button onClick={() => setTimeOn(true)}>Start</Button>
-            <Button onClick={() => setTimeOn(false)}>Stop</Button>
+      <div>
+        { minutes === 0 && seconds === 0
+            ? 'Time up'
+            : <h1> {minutes}:{seconds < 10 ?  `0${seconds}` : seconds}</h1> 
+        }
+        <Button color="secondary" onClick={() => startTimer()} >Start</Button>
+        <Button color="secondary" onClick={() => stopTimer()}>Stop</Button>
+      </div>
+      
+  )
 
-        </section>
-      </CardContent>
-      <CardActions>
-      </CardActions>
-    </Card>
-  );
+//   return (
+//     <Card className={classes.root}>
+//       <CardContent>
+//         <section>
+//             <div className= "minutes">
+//             <div className= "value">00</div>
+//             <span>Minutes</span>
+//             </div>
+//             <div className= "seconds">
+//             <div className= "value">00</div>
+//             <span>Seconds</span>
+//             </div>
+//             <div>
+//     {timerComponents.length ? timerComponents : <span>Time's up!</span>}
+//  </div>  
+//             {/* <Button onClick={() => setTimeOn(true)}>Start</Button>
+//             <Button onClick={() => setTimeOn(false)}>Stop</Button> */}
+
+//         </section>
+//       </CardContent>
+//       <CardActions>
+//       </CardActions>
+//     </Card>
+//   );
 }
